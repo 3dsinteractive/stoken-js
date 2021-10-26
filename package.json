@@ -15,6 +15,7 @@
   "scripts": {
     "build": "webpack --config=./webpack.config.prod.js",
     "prepublishOnly": "webpack --config=./webpack.config.prod.js --mode=production",
+    "tsc": "tsc -p tsconfig.json",
     "serve": "webpack-dev-server",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
   },

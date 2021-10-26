@@ -1,25 +1,28 @@
 import Swal from 'sweetalert2'
 import QRCode from 'qrcode'
+import { Network } from './consts'
+import { ERC20TokenModel } from './models'
+
 import '../css/styles.scss'
 
 export default class SToken {
+  private network: Network
+  private merchantAddr: string
+
+  constructor(network: Network, merchantAddr: string) {
+    this.network = network
+    this.merchantAddr = merchantAddr
+  }
+
   showPaymentDialog(
     orderNumber: string,
     amountUSD: string,
     amountWei: string,
-    merchantAddr: string,
   ): void {
-    // TESTNET
-    // 	BUSD "0xd9cb59029d2e17d7867ad0ccbd4798fe023bac21"
-    // 	CPOINT "0x380d840af588d279a0460fd695c4a2c8378e5d2d"
-    // 	MPOINT "0x794729b785d83b91f3f7fda06cf216ce609b0d4f"
-    // 	SBUSD "0xe7b4ce0792fb8c959f966331d8d11d3ed448cc5b"
-    const contractAddr = '0xd9cb59029d2e17d7867ad0ccbd4798fe023bac21'
-    // const sbusdAddress = '0xe7b4ce0792fb8c959f966331d8d11d3ed448cc5b'
-    const chainId = '97'
     const paymentFormId = this.getRandomId()
     const qrcodeFormId = this.getRandomId()
     const qrcodeId = this.getRandomId()
+    const symbolId = this.getRandomId()
     const paywithBUSDId = this.getRandomId()
     const paywithUSDTId = this.getRandomId()
     const paywithUSDCId = this.getRandomId()
@@ -34,6 +37,7 @@ export default class SToken {
       paymentFormId,
       qrcodeFormId,
       qrcodeId,
+      symbolId,
       paywithBUSDId,
       paywithUSDTId,
       paywithUSDCId,
@@ -44,15 +48,6 @@ export default class SToken {
       paywithSDAIId,
       backButtonId,
     )
-    const paymentDeeplink =
-      'https://metamask.app.link/send/' +
-      contractAddr +
-      '@' +
-      chainId +
-      '/transfer?address=' +
-      merchantAddr +
-      '&uint256=' +
-      amountWei.toString()
 
     Swal.fire({
       title: '',
@@ -62,48 +57,108 @@ export default class SToken {
       padding: '0px',
       background: 'transparent',
       didOpen: () => {
-        const canvas = document.getElementById(qrcodeId)
-        QRCode.toCanvas(canvas, paymentDeeplink, (error) => {
-          if (error) console.error(error)
-        })
         document
           .getElementById(paywithBUSDId)
           ?.addEventListener('click', () => {
-            this.showQR(paymentFormId, qrcodeFormId)
+            this.showQR(
+              paymentFormId,
+              qrcodeFormId,
+              qrcodeId,
+              symbolId,
+              this.BUSD,
+              orderNumber,
+              amountWei,
+            )
           })
         document
           .getElementById(paywithUSDTId)
           ?.addEventListener('click', () => {
-            this.showQR(paymentFormId, qrcodeFormId)
+            this.showQR(
+              paymentFormId,
+              qrcodeFormId,
+              qrcodeId,
+              symbolId,
+              this.USDT,
+              orderNumber,
+              amountWei,
+            )
           })
         document
           .getElementById(paywithUSDCId)
           ?.addEventListener('click', () => {
-            this.showQR(paymentFormId, qrcodeFormId)
+            this.showQR(
+              paymentFormId,
+              qrcodeFormId,
+              qrcodeId,
+              symbolId,
+              this.USDC,
+              orderNumber,
+              amountWei,
+            )
           })
         document.getElementById(paywithDAIId)?.addEventListener('click', () => {
-          this.showQR(paymentFormId, qrcodeFormId)
+          this.showQR(
+            paymentFormId,
+            qrcodeFormId,
+            qrcodeId,
+            symbolId,
+            this.DAI,
+            orderNumber,
+            amountWei,
+          )
         })
 
         document
           .getElementById(paywithSBUSDId)
           ?.addEventListener('click', () => {
-            this.showQR(paymentFormId, qrcodeFormId)
+            this.showQR(
+              paymentFormId,
+              qrcodeFormId,
+              qrcodeId,
+              symbolId,
+              this.SBUSD,
+              orderNumber,
+              amountWei,
+            )
           })
         document
           .getElementById(paywithSUSDTId)
           ?.addEventListener('click', () => {
-            this.showQR(paymentFormId, qrcodeFormId)
+            this.showQR(
+              paymentFormId,
+              qrcodeFormId,
+              qrcodeId,
+              symbolId,
+              this.SUSDT,
+              orderNumber,
+              amountWei,
+            )
           })
         document
           .getElementById(paywithSUSDCId)
           ?.addEventListener('click', () => {
-            this.showQR(paymentFormId, qrcodeFormId)
+            this.showQR(
+              paymentFormId,
+              qrcodeFormId,
+              qrcodeId,
+              symbolId,
+              this.SUSDC,
+              orderNumber,
+              amountWei,
+            )
           })
         document
           .getElementById(paywithSDAIId)
           ?.addEventListener('click', () => {
-            this.showQR(paymentFormId, qrcodeFormId)
+            this.showQR(
+              paymentFormId,
+              qrcodeFormId,
+              qrcodeId,
+              symbolId,
+              this.SDAI,
+              orderNumber,
+              amountWei,
+            )
           })
 
         document.getElementById(backButtonId)?.addEventListener('click', () => {
@@ -113,7 +168,27 @@ export default class SToken {
     })
   }
 
-  private showQR(paymentFormId: string, qrcodeFormId: string) {
+  private showQR(
+    paymentFormId: string,
+    qrcodeFormId: string,
+    qrcodeId: string,
+    symbolId: string,
+    erc20Contract: ERC20TokenModel,
+    orderNumber: string,
+    amountWei: string,
+  ) {
+    const paymentURL = this.buildPaymentURL(erc20Contract.Address, amountWei)
+    const canvas = document.getElementById(qrcodeId)
+    QRCode.toCanvas(canvas, paymentURL, (error) => {
+      if (error) {
+        // TODO: Clear canvas
+      }
+    })
+
+    const symbol = document.getElementById(symbolId)
+    if (symbol) {
+      symbol.innerHTML = erc20Contract.Symbol
+    }
     const paymentForm = document.getElementById(paymentFormId)
     const qrcodeForm = document.getElementById(qrcodeFormId)
     if (paymentForm) {
@@ -140,6 +215,7 @@ export default class SToken {
     paymentFormId: string,
     qrcodeFormId: string,
     qrcodeId: string,
+    symbolId: string,
     paywithBUSDId: string,
     paywithUSDTId: string,
     paywithUSDCId: string,
@@ -193,7 +269,7 @@ export default class SToken {
           <h2>Total Price</h2>
         </div>
         <div class="stoken-payment-qrcode-container">
-          <h2>Pay with <span>SUSDT</span></h2>
+          <h2>Pay with <span id="${symbolId}"></span></h2>
           <h3>Get cash back in CPOINT after payment has done</h3>
           <h4>Scan to Pay</h4>
           <div class="stoken-payment-qrcode">
@@ -214,6 +290,22 @@ export default class SToken {
     </div>`
   }
 
+  private buildPaymentURL(
+    erc20ContractAddr: string,
+    amountWei: string,
+  ): string {
+    const paymentURL =
+      'https://metamask.app.link/send/' +
+      erc20ContractAddr +
+      '@' +
+      this.ChainId +
+      '/transfer?address=' +
+      this.merchantAddr +
+      '&uint256=' +
+      amountWei.toString()
+    return paymentURL
+  }
+
   private getRandomId() {
     let result = ''
     const length = 10
@@ -224,5 +316,164 @@ export default class SToken {
       result += characters.charAt(Math.floor(Math.random() * charactersLength))
     }
     return result
+  }
+
+  get MPOINT(): ERC20TokenModel {
+    switch (this.network) {
+      case Network.BSC:
+        return {
+          Address: '',
+          Symbol: 'MPOINT',
+        }
+      case Network.BSCTest:
+        return {
+          Address: '0x794729b785d83b91f3f7fda06cf216ce609b0d4f',
+          Symbol: 'MPOINT',
+        }
+    }
+  }
+
+  get CPOINT(): ERC20TokenModel {
+    switch (this.network) {
+      case Network.BSC:
+        return {
+          Address: '',
+          Symbol: 'CPOINT',
+        }
+      case Network.BSCTest:
+        return {
+          Address: '0x380d840af588d279a0460fd695c4a2c8378e5d2d',
+          Symbol: 'CPOINT',
+        }
+    }
+  }
+
+  get SDAI(): ERC20TokenModel {
+    switch (this.network) {
+      case Network.BSC:
+        return {
+          Address: '',
+          Symbol: 'SUSDT',
+        }
+      case Network.BSCTest:
+        return {
+          Address: '0xe7b4ce0792fb8c959f966331d8d11d3ed448cc5b',
+          Symbol: 'SUSDT',
+        }
+    }
+  }
+
+  get SUSDC(): ERC20TokenModel {
+    switch (this.network) {
+      case Network.BSC:
+        return {
+          Address: '',
+          Symbol: 'SUSDC',
+        }
+      case Network.BSCTest:
+        return {
+          Address: '0xe7b4ce0792fb8c959f966331d8d11d3ed448cc5b',
+          Symbol: 'SUSDC',
+        }
+    }
+  }
+
+  get SUSDT(): ERC20TokenModel {
+    switch (this.network) {
+      case Network.BSC:
+        return {
+          Address: '',
+          Symbol: 'SUSDT',
+        }
+      case Network.BSCTest:
+        return {
+          Address: '0xe7b4ce0792fb8c959f966331d8d11d3ed448cc5b',
+          Symbol: 'SUSDT',
+        }
+    }
+  }
+
+  get SBUSD(): ERC20TokenModel {
+    switch (this.network) {
+      case Network.BSC:
+        return {
+          Address: '',
+          Symbol: 'SBUSD',
+        }
+      case Network.BSCTest:
+        return {
+          Address: '0xe7b4ce0792fb8c959f966331d8d11d3ed448cc5b',
+          Symbol: 'SBUSD',
+        }
+    }
+  }
+
+  get DAI(): ERC20TokenModel {
+    switch (this.network) {
+      case Network.BSC:
+        return {
+          Address: '',
+          Symbol: 'DAI',
+        }
+      case Network.BSCTest:
+        return {
+          Address: '0xd9cb59029d2e17d7867ad0ccbd4798fe023bac21',
+          Symbol: 'DAI',
+        }
+    }
+  }
+
+  get USDC(): ERC20TokenModel {
+    switch (this.network) {
+      case Network.BSC:
+        return {
+          Address: '',
+          Symbol: 'USDC',
+        }
+      case Network.BSCTest:
+        return {
+          Address: '0xd9cb59029d2e17d7867ad0ccbd4798fe023bac21',
+          Symbol: 'USDC',
+        }
+    }
+  }
+
+  get USDT(): ERC20TokenModel {
+    switch (this.network) {
+      case Network.BSC:
+        return {
+          Address: '',
+          Symbol: 'USDT',
+        }
+      case Network.BSCTest:
+        return {
+          Address: '0xd9cb59029d2e17d7867ad0ccbd4798fe023bac21',
+          Symbol: 'USDT',
+        }
+    }
+  }
+
+  get BUSD(): ERC20TokenModel {
+    switch (this.network) {
+      case Network.BSC:
+        return {
+          Address: '',
+          Symbol: 'BUSD',
+        }
+      case Network.BSCTest:
+        return {
+          Address: '0xd9cb59029d2e17d7867ad0ccbd4798fe023bac21',
+          Symbol: 'BUSD',
+        }
+    }
+  }
+
+  get ChainId(): string {
+    switch (this.network) {
+      case Network.BSC:
+        return '56'
+      case Network.BSCTest:
+        return '97'
+    }
   }
 }

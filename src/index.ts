@@ -1,3 +1,4 @@
 import SToken from './stoken'
+import { Network } from './consts'
 
-export { SToken }
+export { SToken, Network }
