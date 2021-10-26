@@ -1,0 +1,204 @@
+$background: #fff;
+$backgroundDark: #e8ebed;
+$normal: #000;
+$normalLighter: #1b1d1f;
+$primary: #e28800;
+$secondary: #1b1d1f;
+$primaryButton: #fad561;
+$primaryButtonLighter: #fff6da;
+$secondaryButton: #454c53;
+
+.stoken-payment-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+
+  * {
+    color: $normal;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    text-decoration: none;
+    box-sizing: border-box;
+    font-weight: normal;
+  }
+}
+
+.stoken-payment-form {
+  background-color: $background;
+  max-width: 375px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+.stoken-payment-price {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  color: $normal;
+  padding: 10px 0px;
+}
+.stoken-payment-methods {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 5px;
+
+  h2,
+  h3 {
+    flex-basis: 100%;
+    text-align: center;
+  }
+
+  h2 {
+    color: $primary;
+    margin-top: 10px;
+  }
+  h3 {
+    color: $secondary;
+    font-size: 0.8em;
+    margin-top: 5px;
+    margin-bottom: 15px;
+  }
+}
+.stoken-payment-methods li a {
+  background-color: $secondaryButton;
+  display: block;
+  padding: 10px 5px;
+  text-align: center;
+  margin: 10px 10px;
+  border-radius: 3px;
+}
+.stoken-payment-native {
+  flex-grow: 1;
+  flex-basis: 50%;
+  margin-top: 10px;
+}
+.stoken-payment-native li a {
+  color: $primaryButton;
+}
+.stoken-payment-native li:nth-last-child(1) {
+  margin-top: 30px;
+  text-align: left;
+  padding: 5px;
+}
+.stoken-payment-native li:nth-last-child(1) span {
+  text-align: left;
+  color: $normalLighter;
+  font-size: 0.8em;
+}
+.stoken-payment-native li:nth-last-child(1) a {
+  background-color: transparent;
+  text-align: left;
+  color: $normalLighter;
+  font-size: 0.8em;
+  text-decoration: underline;
+  margin: 5px 0px;
+  padding: 0px;
+}
+.stoken-payment-super {
+  background-color: $backgroundDark;
+  flex-grow: 1;
+  flex-basis: 50%;
+  margin-top: 10px;
+}
+.stoken-payment-super li a {
+  background-color: $primaryButton;
+}
+.stoken-payment-super li:nth-last-child(1) {
+  margin-top: 30px;
+  text-align: left;
+  padding: 5px;
+}
+.stoken-payment-super li:nth-last-child(1) span {
+  text-align: left;
+  color: $normalLighter;
+  font-size: 0.8em;
+}
+.stoken-payment-super li:nth-last-child(1) a {
+  background-color: transparent;
+  text-align: left;
+  color: $normalLighter;
+  font-size: 0.8em;
+  text-decoration: underline;
+  margin: 5px 0px;
+  padding: 0px;
+}
+
+.stoken-payment-submit {
+  background-color: $background;
+  max-width: 375px;
+  flex-grow: 1;
+  display: none;
+  flex-direction: column;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+.stoken-payment-qrcode-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  h2 {
+    font-size: 1.5em;
+    color: $primary;
+    margin-top: 10px;
+    span {
+      color: $primary;
+    }
+  }
+  h3 {
+    font-size: 1em;
+    margin-top: 10px;
+  }
+  h4 {
+    font-size: 1.2em;
+    margin-top: 20px;
+  }
+}
+
+.stoken-payment-qrcode {
+  flex-basis: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.stoken-payment-detail {
+  display: flex;
+  flex-direction: column;
+  color: $normal;
+
+  h1 {
+    font-size: 1em;
+  }
+  h2 {
+    font-size: 0.8em;
+  }
+}
+
+.stoken-payment-button {
+  margin: 10px 10px;
+}
+.stoken-payment-button a {
+  display: block;
+  background-color: $primaryButtonLighter;
+  color: $primary;
+  padding: 15px;
+  text-align: center;
+  border-radius: 3px;
+}
+
+.stoken-payment-submit-close {
+  flex-basis: 100%;
+  margin-top: 20px;
+  text-align: left;
+}
+.stoken-payment-submit-close a {
+  text-decoration: none;
+  text-transform: uppercase;
+}
