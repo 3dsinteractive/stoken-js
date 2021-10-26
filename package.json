@@ -1,5 +1,5 @@
 {
-  "name": "stoken",
+  "name": "@3dsinteractive/stoken",
   "version": "1.0.0",
   "main": "./dist/stoken.js",
   "types": "./dist/stoken.d.ts",
