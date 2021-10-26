@@ -7,7 +7,7 @@
     "dist"
   ],
   "author": "pong3ds <chaiyapong@3dsinteractive.com>",
-  "license": "PAM",
+  "license": "PAMCHAIN PUBLIC",
   "repository": {
     "type": "git",
     "url": "https://github.com/3dsinteractive/stoken-js"
