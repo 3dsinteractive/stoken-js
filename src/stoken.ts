@@ -2,6 +2,7 @@ import Swal from 'sweetalert2'
 import QRCode from 'qrcode'
 import { Network } from './consts'
 import { ERC20TokenModel } from './models'
+import BN from 'bn.js'
 
 import '../css/styles.scss'
 
@@ -15,9 +16,9 @@ export default class SToken {
   }
 
   showPaymentDialog(
-    orderNumber: string,
-    amountUSD: string,
-    amountWei: string,
+    orderNumber: number,
+    amountUSD: number,
+    amountToken: number,
   ): void {
     const paymentFormId = this.getRandomId()
     const qrcodeFormId = this.getRandomId()
@@ -31,9 +32,14 @@ export default class SToken {
     const paywithSUSDTId = this.getRandomId()
     const paywithSUSDCId = this.getRandomId()
     const paywithSDAIId = this.getRandomId()
+    const paynowButtonId = this.getRandomId()
     const backButtonId = this.getRandomId()
+    const weiFactor = new BN('18')
+    const amountWei = new BN(amountToken).mul(new BN('10').pow(weiFactor))
+    const amountWithOrderWei = amountWei.add(new BN(orderNumber))
+
     const html = this.getDialogHTML(
-      amountUSD,
+      amountUSD.toFixed(2),
       paymentFormId,
       qrcodeFormId,
       qrcodeId,
@@ -46,6 +52,7 @@ export default class SToken {
       paywithSUSDTId,
       paywithSUSDCId,
       paywithSDAIId,
+      paynowButtonId,
       backButtonId,
     )
 
@@ -65,9 +72,9 @@ export default class SToken {
               qrcodeFormId,
               qrcodeId,
               symbolId,
+              paynowButtonId,
               this.BUSD,
-              orderNumber,
-              amountWei,
+              amountWithOrderWei,
             )
           })
         document
@@ -78,9 +85,9 @@ export default class SToken {
               qrcodeFormId,
               qrcodeId,
               symbolId,
+              paynowButtonId,
               this.USDT,
-              orderNumber,
-              amountWei,
+              amountWithOrderWei,
             )
           })
         document
@@ -91,9 +98,9 @@ export default class SToken {
               qrcodeFormId,
               qrcodeId,
               symbolId,
+              paynowButtonId,
               this.USDC,
-              orderNumber,
-              amountWei,
+              amountWithOrderWei,
             )
           })
         document.getElementById(paywithDAIId)?.addEventListener('click', () => {
@@ -102,9 +109,9 @@ export default class SToken {
             qrcodeFormId,
             qrcodeId,
             symbolId,
+            paynowButtonId,
             this.DAI,
-            orderNumber,
-            amountWei,
+            amountWithOrderWei,
           )
         })
 
@@ -116,9 +123,9 @@ export default class SToken {
               qrcodeFormId,
               qrcodeId,
               symbolId,
+              paynowButtonId,
               this.SBUSD,
-              orderNumber,
-              amountWei,
+              amountWithOrderWei,
             )
           })
         document
@@ -129,9 +136,9 @@ export default class SToken {
               qrcodeFormId,
               qrcodeId,
               symbolId,
+              paynowButtonId,
               this.SUSDT,
-              orderNumber,
-              amountWei,
+              amountWithOrderWei,
             )
           })
         document
@@ -142,9 +149,9 @@ export default class SToken {
               qrcodeFormId,
               qrcodeId,
               symbolId,
+              paynowButtonId,
               this.SUSDC,
-              orderNumber,
-              amountWei,
+              amountWithOrderWei,
             )
           })
         document
@@ -155,9 +162,9 @@ export default class SToken {
               qrcodeFormId,
               qrcodeId,
               symbolId,
+              paynowButtonId,
               this.SDAI,
-              orderNumber,
-              amountWei,
+              amountWithOrderWei,
             )
           })
 
@@ -173,9 +180,9 @@ export default class SToken {
     qrcodeFormId: string,
     qrcodeId: string,
     symbolId: string,
+    paynowButtonId: string,
     erc20Contract: ERC20TokenModel,
-    orderNumber: string,
-    amountWei: string,
+    amountWei: BN,
   ) {
     const paymentURL = this.buildPaymentURL(erc20Contract.Address, amountWei)
     const canvas = document.getElementById(qrcodeId)
@@ -184,6 +191,11 @@ export default class SToken {
         // TODO: Clear canvas
       }
     })
+
+    const paynowBtn = document.getElementById(paynowButtonId)
+    if (paynowBtn) {
+      paynowBtn.setAttribute('href', paymentURL)
+    }
 
     const symbol = document.getElementById(symbolId)
     if (symbol) {
@@ -224,6 +236,7 @@ export default class SToken {
     paywithSUSDTId: string,
     paywithSUSDCId: string,
     paywithSDAIId: string,
+    paynowButtonId: string,
     backButtonId: string,
   ): string {
     return `<div class="stoken-payment-wrapper">
@@ -279,7 +292,7 @@ export default class SToken {
         <div class="stoken-payment-detail">
           <h1>Or</h1>
           <div class="stoken-payment-button">
-            <a id="stoken-paynow" href="javascript:void(0)">Open Metamask</a>
+            <a id="${paynowButtonId}" href="javascript:void(0)" target="_blank">Open Metamask</a>
           </div>
           <h2>Click to open Metamask</h2>
         </div>
@@ -290,10 +303,7 @@ export default class SToken {
     </div>`
   }
 
-  private buildPaymentURL(
-    erc20ContractAddr: string,
-    amountWei: string,
-  ): string {
+  private buildPaymentURL(erc20ContractAddr: string, amountWei: BN): string {
     const paymentURL =
       'https://metamask.app.link/send/' +
       erc20ContractAddr +

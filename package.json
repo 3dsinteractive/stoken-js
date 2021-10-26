@@ -23,6 +23,7 @@
     "@types/qrcode": "^1.4.1",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
+    "@types/bn.js": "^5.1.0",
     "css-loader": "^6.4.0",
     "eslint": "^8.1.0",
     "eslint-config-node": "^4.1.0",
@@ -44,6 +45,7 @@
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {
+    "bn.js": "^5.2.0",
     "qrcode": "^1.4.4",
     "sweetalert2": "^11.1.9"
   }
