@@ -1,2 +1,3 @@
 import SToken from './stoken';
-export { SToken };
+import { Network } from './consts';
+export { SToken, Network };

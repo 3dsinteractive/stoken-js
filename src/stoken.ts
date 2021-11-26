@@ -1,6 +1,6 @@
 import Swal from 'sweetalert2'
 import QRCode from 'qrcode'
-import { Network } from './consts'
+import { BSCTestTokens, BSCTokens, Network } from './consts'
 import { ERC20TokenModel } from './models'
 import BN from 'bn.js'
 
@@ -193,9 +193,7 @@ export default class SToken {
     })
 
     const paynowBtn = document.getElementById(paynowButtonId)
-    if (paynowBtn) {
-      paynowBtn.setAttribute('href', paymentURL)
-    }
+    paynowBtn?.setAttribute('href', paymentURL)
 
     const symbol = document.getElementById(symbolId)
     if (symbol) {
@@ -332,12 +330,12 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: '',
+          Address: BSCTokens.MPoint,
           Symbol: 'MPOINT',
         }
       case Network.BSCTest:
         return {
-          Address: '0x794729b785d83b91f3f7fda06cf216ce609b0d4f',
+          Address: BSCTestTokens.MPoint,
           Symbol: 'MPOINT',
         }
     }
@@ -347,12 +345,12 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: '',
+          Address: BSCTokens.CPoint,
           Symbol: 'CPOINT',
         }
       case Network.BSCTest:
         return {
-          Address: '0x380d840af588d279a0460fd695c4a2c8378e5d2d',
+          Address: BSCTestTokens.CPoint,
           Symbol: 'CPOINT',
         }
     }
@@ -362,12 +360,12 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: '',
+          Address: BSCTokens.SUSDT,
           Symbol: 'SUSDT',
         }
       case Network.BSCTest:
         return {
-          Address: '0xe7b4ce0792fb8c959f966331d8d11d3ed448cc5b',
+          Address: BSCTestTokens.SUSDT,
           Symbol: 'SUSDT',
         }
     }
@@ -377,12 +375,12 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: '',
+          Address: BSCTokens.SUSDC,
           Symbol: 'SUSDC',
         }
       case Network.BSCTest:
         return {
-          Address: '0xe7b4ce0792fb8c959f966331d8d11d3ed448cc5b',
+          Address: BSCTestTokens.SUSDC,
           Symbol: 'SUSDC',
         }
     }
@@ -392,12 +390,12 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: '',
+          Address: BSCTokens.SUSDT,
           Symbol: 'SUSDT',
         }
       case Network.BSCTest:
         return {
-          Address: '0xe7b4ce0792fb8c959f966331d8d11d3ed448cc5b',
+          Address: BSCTestTokens.SUSDT,
           Symbol: 'SUSDT',
         }
     }
@@ -407,12 +405,12 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: '',
+          Address: BSCTokens.SBUSD,
           Symbol: 'SBUSD',
         }
       case Network.BSCTest:
         return {
-          Address: '0xe7b4ce0792fb8c959f966331d8d11d3ed448cc5b',
+          Address: BSCTestTokens.SBUSD,
           Symbol: 'SBUSD',
         }
     }
@@ -422,12 +420,12 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: '',
+          Address: BSCTokens.DAI,
           Symbol: 'DAI',
         }
       case Network.BSCTest:
         return {
-          Address: '0xd9cb59029d2e17d7867ad0ccbd4798fe023bac21',
+          Address: BSCTestTokens.DAI,
           Symbol: 'DAI',
         }
     }
@@ -437,12 +435,12 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: '',
+          Address: BSCTokens.USDC,
           Symbol: 'USDC',
         }
       case Network.BSCTest:
         return {
-          Address: '0xd9cb59029d2e17d7867ad0ccbd4798fe023bac21',
+          Address: BSCTestTokens.USDC,
           Symbol: 'USDC',
         }
     }
@@ -452,12 +450,12 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: '',
+          Address: BSCTokens.USDT,
           Symbol: 'USDT',
         }
       case Network.BSCTest:
         return {
-          Address: '0xd9cb59029d2e17d7867ad0ccbd4798fe023bac21',
+          Address: BSCTestTokens.USDT,
           Symbol: 'USDT',
         }
     }
@@ -467,12 +465,12 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: '',
+          Address: BSCTokens.BUSD,
           Symbol: 'BUSD',
         }
       case Network.BSCTest:
         return {
-          Address: '0xd9cb59029d2e17d7867ad0ccbd4798fe023bac21',
+          Address: BSCTestTokens.BUSD,
           Symbol: 'BUSD',
         }
     }
