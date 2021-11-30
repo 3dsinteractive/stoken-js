@@ -2,7 +2,6 @@ import Swal from 'sweetalert2'
 import QRCode from 'qrcode'
 import { BSCTestTokens, BSCTokens, Network } from './consts'
 import { ERC20TokenModel } from './models'
-import BN from 'bn.js'
 
 import '../css/styles.scss'
 
@@ -15,11 +14,7 @@ export default class SToken {
     this.merchantAddr = merchantAddr
   }
 
-  showPaymentDialog(
-    orderNumber: number,
-    amountUSD: number,
-    amountToken: number,
-  ): void {
+  showPaymentDialog(orderNumber: string, amountUSD: number): void {
     const paymentFormId = this.getRandomId()
     const qrcodeFormId = this.getRandomId()
     const qrcodeId = this.getRandomId()
@@ -28,15 +23,9 @@ export default class SToken {
     const paywithUSDTId = this.getRandomId()
     const paywithUSDCId = this.getRandomId()
     const paywithDAIId = this.getRandomId()
-    const paywithSBUSDId = this.getRandomId()
-    const paywithSUSDTId = this.getRandomId()
-    const paywithSUSDCId = this.getRandomId()
-    const paywithSDAIId = this.getRandomId()
+    const paywithSUSDId = this.getRandomId()
     const paynowButtonId = this.getRandomId()
     const backButtonId = this.getRandomId()
-    const weiFactor = new BN('18')
-    const amountWei = new BN(amountToken).mul(new BN('10').pow(weiFactor))
-    const amountWithOrderWei = amountWei.add(new BN(orderNumber))
 
     const html = this.getDialogHTML(
       amountUSD.toFixed(2),
@@ -48,10 +37,7 @@ export default class SToken {
       paywithUSDTId,
       paywithUSDCId,
       paywithDAIId,
-      paywithSBUSDId,
-      paywithSUSDTId,
-      paywithSUSDCId,
-      paywithSDAIId,
+      paywithSUSDId,
       paynowButtonId,
       backButtonId,
     )
@@ -73,8 +59,9 @@ export default class SToken {
               qrcodeId,
               symbolId,
               paynowButtonId,
-              this.BUSD,
-              amountWithOrderWei,
+              this.BUSD.Symbol,
+              amountUSD,
+              orderNumber,
             )
           })
         document
@@ -86,8 +73,9 @@ export default class SToken {
               qrcodeId,
               symbolId,
               paynowButtonId,
-              this.USDT,
-              amountWithOrderWei,
+              this.USDT.Symbol,
+              amountUSD,
+              orderNumber,
             )
           })
         document
@@ -99,8 +87,9 @@ export default class SToken {
               qrcodeId,
               symbolId,
               paynowButtonId,
-              this.USDC,
-              amountWithOrderWei,
+              this.USDC.Symbol,
+              amountUSD,
+              orderNumber,
             )
           })
         document.getElementById(paywithDAIId)?.addEventListener('click', () => {
@@ -110,13 +99,14 @@ export default class SToken {
             qrcodeId,
             symbolId,
             paynowButtonId,
-            this.DAI,
-            amountWithOrderWei,
+            this.DAI.Symbol,
+            amountUSD,
+            orderNumber,
           )
         })
 
         document
-          .getElementById(paywithSBUSDId)
+          .getElementById(paywithSUSDId)
           ?.addEventListener('click', () => {
             this.showQR(
               paymentFormId,
@@ -124,47 +114,9 @@ export default class SToken {
               qrcodeId,
               symbolId,
               paynowButtonId,
-              this.SBUSD,
-              amountWithOrderWei,
-            )
-          })
-        document
-          .getElementById(paywithSUSDTId)
-          ?.addEventListener('click', () => {
-            this.showQR(
-              paymentFormId,
-              qrcodeFormId,
-              qrcodeId,
-              symbolId,
-              paynowButtonId,
-              this.SUSDT,
-              amountWithOrderWei,
-            )
-          })
-        document
-          .getElementById(paywithSUSDCId)
-          ?.addEventListener('click', () => {
-            this.showQR(
-              paymentFormId,
-              qrcodeFormId,
-              qrcodeId,
-              symbolId,
-              paynowButtonId,
-              this.SUSDC,
-              amountWithOrderWei,
-            )
-          })
-        document
-          .getElementById(paywithSDAIId)
-          ?.addEventListener('click', () => {
-            this.showQR(
-              paymentFormId,
-              qrcodeFormId,
-              qrcodeId,
-              symbolId,
-              paynowButtonId,
-              this.SDAI,
-              amountWithOrderWei,
+              this.SUSD.Symbol,
+              amountUSD,
+              orderNumber,
             )
           })
 
@@ -181,23 +133,38 @@ export default class SToken {
     qrcodeId: string,
     symbolId: string,
     paynowButtonId: string,
-    erc20Contract: ERC20TokenModel,
-    amountWei: BN,
+    payFromToken: string, // BUSD,USDT,USDC,DAI,SUSD
+    amountUSD: number,
+    orderNumber: string,
   ) {
-    const paymentURL = this.buildPaymentURL(erc20Contract.Address, amountWei)
+    const mobilePaymentURL = this.buildMobilePaymentURL(
+      payFromToken,
+      amountUSD,
+      orderNumber,
+    )
+    const desktopPaymentURL = this.buildDesktopPaymentURL(
+      payFromToken,
+      amountUSD,
+      orderNumber,
+    )
     const canvas = document.getElementById(qrcodeId)
-    QRCode.toCanvas(canvas, paymentURL, (error) => {
+    QRCode.toCanvas(canvas, mobilePaymentURL, (error) => {
       if (error) {
         // TODO: Clear canvas
       }
     })
 
     const paynowBtn = document.getElementById(paynowButtonId)
-    paynowBtn?.setAttribute('href', paymentURL)
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    if (isMobile) {
+      paynowBtn?.setAttribute('href', mobilePaymentURL)
+    } else {
+      paynowBtn?.setAttribute('href', desktopPaymentURL)
+    }
 
     const symbol = document.getElementById(symbolId)
     if (symbol) {
-      symbol.innerHTML = erc20Contract.Symbol
+      symbol.innerHTML = payFromToken
     }
     const paymentForm = document.getElementById(paymentFormId)
     const qrcodeForm = document.getElementById(qrcodeFormId)
@@ -230,10 +197,7 @@ export default class SToken {
     paywithUSDTId: string,
     paywithUSDCId: string,
     paywithDAIId: string,
-    paywithSBUSDId: string,
-    paywithSUSDTId: string,
-    paywithSUSDCId: string,
-    paywithSDAIId: string,
+    paywithSUSDId: string,
     paynowButtonId: string,
     backButtonId: string,
   ): string {
@@ -260,10 +224,7 @@ export default class SToken {
           </div>
           <div class="stoken-payment-super">
             <ul>
-              <li><a id="${paywithSBUSDId}" href="javascript:void(0)">SBUSD</a></li>
-              <li><a id="${paywithSUSDTId}" href="javascript:void(0)">SUSDT</a></li>
-              <li><a id="${paywithSUSDCId}" href="javascript:void(0)">SUSDC</a></li>
-              <li><a id="${paywithSDAIId}" href="javascript:void(0)">SDAI</a></li>
+              <li><a id="${paywithSUSDId}" href="javascript:void(0)">SUSD</a></li>
               <li>
                 <span>Get cash back in CPOINT, if spend in S Token</span>
                 <a href="javascript:void(0)">What is CPOINT?</a>
@@ -290,9 +251,9 @@ export default class SToken {
         <div class="stoken-payment-detail">
           <h1>Or</h1>
           <div class="stoken-payment-button">
-            <a id="${paynowButtonId}" href="javascript:void(0)" target="_blank">Open Metamask</a>
+            <a id="${paynowButtonId}" href="javascript:void(0)" target="_blank">Pay with Metamask</a>
           </div>
-          <h2>Click to open Metamask</h2>
+          <h2>Use Metamask to make a payment</h2>
         </div>
         <div class="stoken-payment-submit-close">
           <a id="${backButtonId}" href="javascript:void(0)">Back</a>
@@ -301,17 +262,26 @@ export default class SToken {
     </div>`
   }
 
-  private buildPaymentURL(erc20ContractAddr: string, amountWei: BN): string {
-    const paymentURL =
-      'https://metamask.app.link/send/' +
-      erc20ContractAddr +
-      '@' +
-      this.ChainId +
-      '/transfer?address=' +
-      this.merchantAddr +
-      '&uint256=' +
-      amountWei.toString()
-    return paymentURL
+  // buildDesktopPaymentURL will redirect user to s-token payment page
+  private buildDesktopPaymentURL(
+    fromToken: string,
+    amountUSD: number,
+    orderNumber: string,
+  ): string {
+    // https://metamask.app.link/dapp/s-token.net/pay/0x61/0x59c4B1a0B22ccd24C7B919898edE83219C2bC6dB/01234567890/SUSD/5/
+    // https://s-token.net/pay/0x61/0x59c4B1a0B22ccd24C7B919898edE83219C2bC6dB/01234567890/SUSD/5/
+    return `https://s-token.net/pay/${this.chainId}/${this.merchantAddr}/${orderNumber}/${fromToken}/${amountUSD}/`
+  }
+
+  // buildMobilePaymentURL will deeplink user to Metamask browser that show s-token payment page
+  private buildMobilePaymentURL(
+    fromToken: string,
+    amountUSD: number,
+    orderNumber: string,
+  ): string {
+    // https://metamask.app.link/dapp/s-token.net/pay/0x61/0x59c4B1a0B22ccd24C7B919898edE83219C2bC6dB/01234567890/SUSD/5/
+    // https://s-token.net/pay/0x61/0x59c4B1a0B22ccd24C7B919898edE83219C2bC6dB/01234567890/SUSD/5/
+    return `https://metamask.app.link/dapp/s-token.net/pay/${this.chainId}/${this.merchantAddr}/${orderNumber}/${fromToken}/${amountUSD}/`
   }
 
   private getRandomId() {
@@ -330,12 +300,10 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: BSCTokens.MPoint,
           Symbol: 'MPOINT',
         }
       case Network.BSCTest:
         return {
-          Address: BSCTestTokens.MPoint,
           Symbol: 'MPOINT',
         }
     }
@@ -345,73 +313,24 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: BSCTokens.CPoint,
           Symbol: 'CPOINT',
         }
       case Network.BSCTest:
         return {
-          Address: BSCTestTokens.CPoint,
           Symbol: 'CPOINT',
         }
     }
   }
 
-  get SDAI(): ERC20TokenModel {
+  get SUSD(): ERC20TokenModel {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: BSCTokens.SUSDT,
-          Symbol: 'SUSDT',
+          Symbol: 'SUSD',
         }
       case Network.BSCTest:
         return {
-          Address: BSCTestTokens.SUSDT,
-          Symbol: 'SUSDT',
-        }
-    }
-  }
-
-  get SUSDC(): ERC20TokenModel {
-    switch (this.network) {
-      case Network.BSC:
-        return {
-          Address: BSCTokens.SUSDC,
-          Symbol: 'SUSDC',
-        }
-      case Network.BSCTest:
-        return {
-          Address: BSCTestTokens.SUSDC,
-          Symbol: 'SUSDC',
-        }
-    }
-  }
-
-  get SUSDT(): ERC20TokenModel {
-    switch (this.network) {
-      case Network.BSC:
-        return {
-          Address: BSCTokens.SUSDT,
-          Symbol: 'SUSDT',
-        }
-      case Network.BSCTest:
-        return {
-          Address: BSCTestTokens.SUSDT,
-          Symbol: 'SUSDT',
-        }
-    }
-  }
-
-  get SBUSD(): ERC20TokenModel {
-    switch (this.network) {
-      case Network.BSC:
-        return {
-          Address: BSCTokens.SBUSD,
-          Symbol: 'SBUSD',
-        }
-      case Network.BSCTest:
-        return {
-          Address: BSCTestTokens.SBUSD,
-          Symbol: 'SBUSD',
+          Symbol: 'SUSD',
         }
     }
   }
@@ -420,12 +339,10 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: BSCTokens.DAI,
           Symbol: 'DAI',
         }
       case Network.BSCTest:
         return {
-          Address: BSCTestTokens.DAI,
           Symbol: 'DAI',
         }
     }
@@ -435,12 +352,10 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: BSCTokens.USDC,
           Symbol: 'USDC',
         }
       case Network.BSCTest:
         return {
-          Address: BSCTestTokens.USDC,
           Symbol: 'USDC',
         }
     }
@@ -450,12 +365,10 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: BSCTokens.USDT,
           Symbol: 'USDT',
         }
       case Network.BSCTest:
         return {
-          Address: BSCTestTokens.USDT,
           Symbol: 'USDT',
         }
     }
@@ -465,23 +378,21 @@ export default class SToken {
     switch (this.network) {
       case Network.BSC:
         return {
-          Address: BSCTokens.BUSD,
           Symbol: 'BUSD',
         }
       case Network.BSCTest:
         return {
-          Address: BSCTestTokens.BUSD,
           Symbol: 'BUSD',
         }
     }
   }
 
-  get ChainId(): string {
+  get chainId(): string {
     switch (this.network) {
       case Network.BSC:
-        return '56'
+        return '0x38'
       case Network.BSCTest:
-        return '97'
+        return '0x61x'
     }
   }
 }

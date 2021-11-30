@@ -4,29 +4,76 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Webpack template</title>
+    <title>Payment Test Page</title>
   </head>
   <body>
     <h1>Test SToken payment</h1>
-    <button id="payWithMetamask" onclick="showPayment()">
-      Pay with Metamask
-    </button>
+    <div class="form-item">
+      <label>Order number: </label>
+      <input type="text" id="orderNumber" value="01234567890"></input>
+    </div>
+    <div class="form-item">
+      <label>Amount USD</label>
+      <input type="text" id="amount" value="5"></input>
+    </div>
+    <div class="form-item">
+      <label>Merchant wallet</label>
+      <input type="text" id="merchantAddr" value="0x59c4B1a0B22ccd24C7B919898edE83219C2bC6dB"></input>
+    </div>
+    <div class="buttons">
+      <button id="payWithMetamask" onclick="showPayment()">
+        Pay with Metamask
+      </button>
+    </div>
+    
     <script type="text/javascript" src="public/stoken.js"></script>
     <script type="text/javascript">
-      function showPayment() {
-        var orderNumber = 1234567890
-        var amountUSD = 100
-        var amountWei = 100
-        var merchantAddr = '0x59c4B1a0B22ccd24C7B919898edE83219C2bC6dB'
+      function isNumber(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+      }
 
+      function showPayment() {
+
+        var orderNumber = document.getElementById('orderNumber').value
+        var amountUSD = document.getElementById('amount').value
+        var merchantAddr = document.getElementById('merchantAddr').value
+
+        if (amountUSD.length == 0 || !isNumber(amountUSD)) {
+          alert('Please enter amount in USD')
+          return
+        }
+
+        amountUSD = parseFloat(amountUSD)
+        
         const { SToken, Network } = window.SToken
         var stoken = new SToken(Network.BSCTest, merchantAddr)
         stoken.showPaymentDialog(
           orderNumber,
           amountUSD,
-          amountWei,
         )
       }
     </script>
+    <style lang="css">
+      * {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 18px;
+      }
+      h1 {
+        font-size: 23px;
+      }
+      .form-item {
+        margin-top: 10px;
+      }
+      label {
+        display: block;
+      }
+      input {
+        width: 500px;
+        margin-top: 5px;
+      }
+      .buttons {
+        margin-top: 50px;
+      }
+    </style>
   </body>
 </html>
